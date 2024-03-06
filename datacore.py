@@ -1,6 +1,7 @@
 import customtkinter as ct
 import tkinter as tk
 from tkinter import ttk
+import json
 
 
 class DataCoreApp:
@@ -16,25 +17,11 @@ class DataCoreApp:
         self.sidebar = ct.CTkFrame(self.root, width=250, corner_radius=0)
         self.info = ct.CTkFrame(self.root)
 
-        self.weekly_data = {
-            "Days": ["Monday", "Tuesday", "Wednsday", "Thursday", "Friday", "Saturday", "Sunday"],
-            "Amount of sales": [1, 2, 3, 11, 15, 18, 19]
-        }
+        self.weekly_data = self.get_weekly_data()
 
-        self.yearly_data = {
-            "Months": ["October", "November","December", "January", "Feburary", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-            "Amount of sales": [0, 0, 3, 41, 28, 53, 36, 85, 25, 85, 89, 36, 52, 100, 56]
-        }
+        self.yearly_data = self.get_yearly_data()
 
-        self.employees = {
-            "Daniel Zheleznov": ["CEO", 70000, "123-456-789", "zheleznov.daniel@datacoreve.com", "Manager"],
-            "Nadeyah Sharhan": ["COO", 65000, "379-756-6879", "sharhan.nadeyah@datacoreve.com", "Manager"],
-            "Denis Trifonov": ["CSO", 65000, "403-173-7858", "trifonov.denis@datacoreve.com", "Manager"],
-            "Bernie Yang": ["CTO", 65000, "361-723-0900", "yang.bernie@datacoreve.com", "Manager"],
-            "Annie Wang": ["CFO", 65000, "992-649-0492", "wang.annie@datacoreve.com", "Manager"],
-            "Janice Liu": ["CAO", 65000, "463-354-8754", "liu.janice@datacoreve.com", "Manager"],
-            "Bekim Seferoviq": ["CMO", 65000, "144-602-8555", "seferoviq.bekim@datacoreve.com", "Manager"],
-        }
+        self.employees = self.get_employee_data()
 
     def run(self):
         self.root.grid_rowconfigure((0, 1, 2), weight=1)
@@ -52,7 +39,7 @@ class DataCoreApp:
         employee.grid(column=0, row=2, pady=5)
 
         # inventory
-        inventory = ct.CTkButton(self.sidebar, 230, text="Inventory", font=self.jetbrains_mono_mini)
+        inventory = ct.CTkButton(self.sidebar, 230, text="Inventory", font=self.jetbrains_mono_mini, command=self.inventory_cmd)
         inventory.grid(column=0, row=3, pady=5)
 
         version = ct.CTkLabel(self.sidebar, 230, text="Beta v3 (WIP)", font=self.jetbrains_mono_mini, text_color="green", anchor="s")
@@ -127,10 +114,11 @@ class DataCoreApp:
         self.info.destroy()
         self.info = ct.CTkFrame(self.root)
 
-        employee_listbox = tk.Listbox(self.info, font=self.jetbrains_mono)
+        self.employee_listbox = tk.Listbox(self.info, font=self.jetbrains_mono)
         for employee in self.employees:
-            employee_listbox.insert(tk.END, employee)
-        employee_listbox.pack(side="left", expand=1, fill="both")
+            self.employee_listbox.insert(tk.END, employee)
+        self.employee_listbox.bind("<<ListboxSelect>>", self.update_entries)
+        self.employee_listbox.pack(side="left", expand=1, fill="both")
 
         employee_frame = tk.Frame(self.info)
 
@@ -176,9 +164,97 @@ class DataCoreApp:
         employee_role_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_role)
         employee_role_et.grid(row=5, column=1, columnspan=2) 
 
+        self.save_button = ct.CTkButton(employee_frame, text="Save", command=self.save_entries)
+        self.save_button.grid(row=6, column=0, sticky="w", columnspan=3)  
+
         employee_frame.pack( expand=1, fill="both")
 
         self.info.grid(column=1, row=0, sticky="nswe", columnspan=3, rowspan=4)
+
+    def inventory_cmd(self):
+        self.info.destroy()
+        self.info = ct.CTkFrame(self.root)
+
+        self.employee_listbox = tk.Listbox(self.info, font=self.jetbrains_mono)
+        for employee in self.employees:
+            self.employee_listbox.insert(tk.END, employee)
+        self.employee_listbox.bind("<<ListboxSelect>>", self.update_entries)
+        self.employee_listbox.pack(side="left", expand=1, fill="both")
+
+        employee_frame = tk.Frame(self.info)
+
+        employee_name_lb = tk.Label(employee_frame, text="Name: ", font=self.jetbrains_mono, anchor="e", padx=0)
+        employee_name_lb.grid(row=0, column=0)
+
+        self.employee_name = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_name_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_name)
+        employee_name_et.grid(row=0, column=1, columnspan=2)        
+
+        employee_title_lb = tk.Label(employee_frame, text="Title: ", font=self.jetbrains_mono, anchor="e")
+        employee_title_lb.grid(row=1, column=0)
+
+        self.employee_title = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_title_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_title)
+        employee_title_et.grid(row=1, column=1, columnspan=2)       
+
+        employee_pay_lb = tk.Label(employee_frame, text="Pay: ", font=self.jetbrains_mono, anchor="e")
+        employee_pay_lb.grid(row=2, column=0)
+
+        self.employee_pay = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_pay_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_pay)
+        employee_pay_et.grid(row=2, column=1, columnspan=2) 
+
+        employee_phone_lb = tk.Label(employee_frame, text="Phone: ", font=self.jetbrains_mono, anchor="w")
+        employee_phone_lb.grid(row=3, column=0)
+
+        self.employee_phone = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_phone_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_phone)
+        employee_phone_et.grid(row=3, column=1, columnspan=2) 
+
+        employee_email_lb = tk.Label(employee_frame, text="Email: ", font=self.jetbrains_mono, anchor="w")
+        employee_email_lb.grid(row=4, column=0)
+
+        self.employee_email = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_email_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_email)
+        employee_email_et.grid(row=4, column=1, columnspan=2) 
+
+        employee_role_lb = tk.Label(employee_frame, text="Role: ", font=self.jetbrains_mono, anchor="e", padx=0)
+        employee_role_lb.grid(row=5, column=0)
+
+        self.employee_role = tk.StringVar(employee_frame, value="WILL AUTO FILL")
+        employee_role_et = tk.Entry(employee_frame, font=self.jetbrains_mono, textvariable=self.employee_role)
+        employee_role_et.grid(row=5, column=1, columnspan=2) 
+
+        self.save_button = ct.CTkButton(employee_frame, text="Save", command=self.save_entries)
+        self.save_button.grid(row=6, column=0, sticky="w", columnspan=3)  
+
+        employee_frame.pack( expand=1, fill="both")
+
+        self.info.grid(column=1, row=0, sticky="nswe", columnspan=3, rowspan=4)
+
+    def update_entries(self, event):        
+        if self.employee_listbox.curselection() != ():
+            name = self.employee_listbox.get(self.employee_listbox.curselection()[0])
+            for employee in self.employees:
+                if employee == name:
+                    self.employee_name.set(employee)
+                    self.employee_title.set(self.employees[employee][0])
+                    self.employee_pay.set(self.employees[employee][1])
+                    self.employee_phone.set(self.employees[employee][2])
+                    self.employee_email.set(self.employees[employee][3])
+                    self.employee_role.set(self.employees[employee][4])
+
+    def save_entries(self):
+        with open("data.json") as file:
+            data = json.load(file)
+            data["employees"][self.employee_name.get()] = [
+                self.employee_title.get(), 
+                self.employee_pay.get(), 
+                self.employee_phone.get(), 
+                self.employee_email.get(), 
+                self.employee_role.get()
+            ]
+            file.close()
 
     def _base_cmd(self):
         self.info.destroy()
@@ -186,6 +262,27 @@ class DataCoreApp:
         self.info = ct.CTkFrame(self.root)
 
         self.info.grid(column=1, row=0, sticky="nswe", columnspan=3, rowspan=4)
+
+    def get_weekly_data(self):
+        with open("data.json") as file:
+            data = json.load(file)
+            weekly_data = data["weekly_data"]
+            file.close()
+        return weekly_data
+
+    def get_yearly_data(self):
+        with open("data.json") as file:
+            data = json.load(file)
+            yearly_data = data["yearly_data"]
+            file.close()
+        return yearly_data
+
+    def get_employee_data(self):
+        with open("data.json") as file:
+            data = json.load(file)
+            employee_data = data["employees"]
+            file.close()
+        return employee_data
 
 app = DataCoreApp()
 app.run()
