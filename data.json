@@ -1,0 +1,139 @@
+{
+    "weekly_data": {
+        "Days": [
+            "Monday",
+            "Tuesday",
+            "Wednsday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+        ],
+        "Amount of sales": [
+            1,
+            2,
+            3,
+            11,
+            15,
+            18,
+            19
+        ]
+    },
+    "yearly_data": {
+        "Months": [
+            "October",
+            "November",
+            "December",
+            "January",
+            "Feburary",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+        ],
+        "Amount of sales": [
+            0,
+            0,
+            3,
+            41,
+            28,
+            53,
+            36,
+            85,
+            25,
+            85,
+            89,
+            36,
+            52,
+            100,
+            56
+        ]
+    },
+    "AllSales": {
+        
+    },
+
+    "employees": {
+        "Daniel Zheleznov": [
+            "CEO",
+            70000,
+            "123-456-789",
+            "zheleznov.daniel@datacoreve.com",
+            "Manager"
+        ],
+        "Nadeyah Sharhan": [
+            "COO",
+            65000,
+            "379-756-6879",
+            "sharhan.nadeyah@datacoreve.com",
+            "Manager"
+        ],
+        "Denis Trifonov": [
+            "CSO",
+            65000,
+            "403-173-7858",
+            "trifonov.denis@datacoreve.com",
+            "Manager"
+        ],
+        "Bernie Yang": [
+            "CTO",
+            65000,
+            "361-723-0900",
+            "yang.bernie@datacoreve.com",
+            "Manager"
+        ],
+        "Annie Wang": [
+            "CFO",
+            65000,
+            "992-649-0492",
+            "wang.annie@datacoreve.com",
+            "Manager"
+        ],
+        "Janice Liu": [
+            "CAO",
+            65000,
+            "463-354-8754",
+            "liu.janice@datacoreve.com",
+            "Manager"
+        ],
+        "Bekim Seferoviq": [
+            "CMO",
+            65000,
+            "144-602-8555",
+            "seferoviq.bekim@datacoreve.com",
+            "Manager"
+        ]
+    },
+    "Inventory": {
+        "BIC Pens": [
+            "Storage room - A6",
+            360,
+            "48NC4398ZF",
+            "$1.57",
+            "Amazon",
+            "https://www.amazon.com/BIC-Cristal-Smooth-Ballpoint-10-Count/dp/B000NVPTU2?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=ATVPDKIKX0DER"
+        ],
+        "IdeaPad Flex 5i Chromebook Plus Gen 7 Intel 14 in.": [
+            "On desks",
+            26,
+            "83EK0000UX",
+            "$329.00",
+            "Lenovo",
+            "https://www.lenovo.com/us/en/p/laptops/ideapad/ideapad-flex-series/ideapad-flex-5i-chromebook-plus-gen-7-(14-inch-intel)/83ek0000ux"
+        ],
+        "Amazon Basics Legal Pads": [
+            "Storage room - N8",
+            40,
+            "41HS9034LW",
+            "$13.18",
+            "Amazon",
+            "https://www.amazon.com/Amazon-Basics-11-75-Inch-50-Sheet-Writing/dp/B00QSR9KFU?source=ps-sl-shoppingads-lpcontext&ref_=fplfs&psc=1&smid=ATVPDKIKX0DER"
+        ]
+    }
+}
