@@ -1,0 +1,277 @@
+# class EmployeeManagement:
+#     def __init__(self):
+#         self.add_employee_bg = "black"
+#         self.add_employee_text = "white"
+#         self.title_dialog_font = pygame.font.SysFont("Calibri", 15)
+#         self.title_dialog_color = "darkgray"
+
+#         self.employee_shown = False
+#         self.allow_collisions = True
+
+#     def add_employee_dialog(self, display: pygame.SurfaceType, position: tuple, size: tuple):
+#         dialog_surf = pygame.Surface((600, 240))
+#         dialog_x = (size[0] // 2 - dialog_surf.get_width() // 2)
+#         dialog_y = (size[1] // 2 - dialog_surf.get_height() // 2)
+
+#         title_render = self.title_dialog_font.render("Add Employee", True, "black")
+#         title_bg_rect = pygame.Rect(0, 0, dialog_surf.get_width(), TOP + title_render.get_height() + TOP)
+#         pygame.draw.rect(dialog_surf, self.title_dialog_color, title_bg_rect)
+#         dialog_surf.blit(title_render, ((dialog_surf.get_width() // 2 - title_render.get_width() // 2), TOP))
+
+#         image_rect = pygame.Rect(LEFT, title_bg_rect.bottomleft[1] + 5, 150, 250 * (6 / 9))
+#         pygame.draw.rect(dialog_surf, "green", image_rect)
+
+#         x = image_rect.topright[0] + LEFT
+#         y = image_rect.topright[1]
+
+#         iden_rnd = normal_font.render("ID: ", True, "white")
+#         dialog_surf.blit(iden_rnd, (x, y))
+#         y += iden_rnd.get_height() + BOTTOM
+
+#         first_name_render = normal_font.render("First Name: ", True, "white")
+#         dialog_surf.blit(first_name_render, (x, y))
+#         y += first_name_render.get_height() + BOTTOM
+
+#         last_name_render = normal_font.render("Last Name: ", True, "white")
+#         dialog_surf.blit(last_name_render, (x, y))
+#         y += last_name_render.get_height() + BOTTOM
+
+#         contact_render = normal_font.render("Contact: ", True, "white")
+#         dialog_surf.blit(contact_render, (x, y))
+#         y += contact_render.get_height() + BOTTOM
+
+#         position_render = normal_font.render("Position: ", True, "white")
+#         dialog_surf.blit(position_render, (x, y))
+#         y += position_render.get_height() + BOTTOM
+
+#         role_render = normal_font.render("Role: ", True, "white")
+#         dialog_surf.blit(role_render, (x, y))
+#         y += role_render.get_height() + BOTTOM
+
+#         pay_render = normal_font.render("Pay: ", True, "white")
+#         dialog_surf.blit(pay_render, (x, y))
+#         y += pay_render.get_height() + BOTTOM
+
+#         add_employee_rnd = normal_font.render("Add The Employee", True, "black")
+#         add_employee = pygame.rect.Rect(LEFT, y, dialog_surf.get_width() - LEFT - RIGHT,
+#                                         add_employee_rnd.get_height() + TOP_BUTTON + BOTTOM_BUTTON)
+#         pygame.draw.rect(dialog_surf, "white", add_employee)
+#         dialog_surf.blit(add_employee_rnd,
+#                          (add_employee.x + (add_employee.width // 2 - add_employee_rnd.get_width() // 2),
+#                           add_employee.y + TOP_BUTTON))
+
+#         display.blit(dialog_surf, (dialog_x, dialog_y))
+
+#         if pygame.key.get_pressed()[pygame.K_ESCAPE]:
+#             self.employee_shown = False
+#             self.allow_collisions = True
+
+#     def render(self, display: pygame.SurfaceType, position: tuple, size: tuple):
+#         surf = pygame.Surface(size)
+#         surf.fill("white")
+
+#         add_employee_text = normal_font.render("Add", True, self.add_employee_text, self.add_employee_bg)
+#         add_employee_rect = pygame.Rect(
+#             float(size[0] - LEFT_BUTTON - add_employee_text.get_width() - RIGHT_BUTTON - RIGHT),
+#             float(size[1] - TOP_BUTTON - add_employee_text.get_height() - BOTTOM_BUTTON - BOTTOM),
+#             float(LEFT_BUTTON + add_employee_text.get_width() + RIGHT_BUTTON),
+#             float(TOP_BUTTON + add_employee_text.get_height() + BOTTOM_BUTTON)
+#         )
+#         pygame.draw.rect(surf, self.add_employee_bg, add_employee_rect)
+#         surf.blit(add_employee_text, [add_employee_rect.x + LEFT_BUTTON, add_employee_rect.y + TOP_BUTTON])
+#         if add_employee_rect.collidepoint([pygame.mouse.get_pos()[0] - LEFT - position[0],
+#                                            pygame.mouse.get_pos()[1] - TOP - position[1]]) and self.allow_collisions:
+#             self.add_employee_bg = "gray"
+#             self.add_employee_text = "black"
+
+#             if pygame.mouse.get_pressed()[0] and self.allow_collisions:
+#                 self.employee_shown = True
+#                 self.allow_collisions = False
+#                 pygame.mixer.Sound("menu_click.wav").play()
+
+#         else:
+#             self.add_employee_bg = "black"
+#             self.add_employee_text = "white"
+
+#         if self.employee_shown:
+#             self.add_employee_dialog(surf, position, size)
+
+#         display.blit(surf, position)
+
+
+# class Tab2:
+#     def __init__(self):
+#         pass
+
+#     def render(self, display: pygame.SurfaceType, position: tuple, size: tuple):
+#         surf = pygame.Surface(size)
+#         surf.fill("blue")
+#         display.blit(surf, position)
+
+
+# class Tab3:
+#     def __init__(self):
+#         pass
+
+#     def render(self, display: pygame.SurfaceType, position: tuple, size: tuple):
+#         surf = pygame.Surface(size)
+#         surf.fill("red")
+#         display.blit(surf, position)
+
+
+
+class Surface(pygame.sprite.Sprite):
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        
+        self.background_color = "white"
+        self.text_color = "black"
+        self.text_info = None
+
+        self.padding_top = 5        
+        self.padding_bottom = 5        
+        self.padding_right = 5        
+        self.padding_left = 5        
+        
+        # sprite stuff
+        super().__init__()
+
+    def add_text(self, text, font):
+        self.text_info = [text, font]
+        self.update()
+
+    def update(self):
+        if self.width is None and self.text_info is not None:
+            self.width = self.padding_left + self.text_info[1].render(self.text_info[0], True, "black").get_width() + self.padding_right
+        
+        if self.height is None and self.text_info is not None:
+            self.height = self.padding_top + self.text_info[1].render(self.text_info[0], True, "black").get_height() + self.padding_bottom
+
+        self.image = pygame.Surface((self.width, self.height))
+        self.image.fill(self.background_color) 
+    
+        if self.text_info is not None:
+            text_render = self.text_info[1].render(self.text_info[0], True, "black")
+            text_x = self.image.get_width()//2 - text_render.get_width()//2
+            text_y = self.image.get_height()//2 - text_render.get_height()//2
+            self.image.blit(text_render, (text_x, text_y)) # MIGHT BE HERE
+            
+        self.rect = self.image.get_rect(topleft=(self.x, self.y))
+
+
+class RowToSidebar:
+    def __init__(self) -> None:
+        """CAUSE I LAZY IT ONLY WORK WIT THREE"""
+
+        self.tabs = []
+
+        self.tab_font = pygame.font.SysFont("Arial", 15)
+        
+        self.tab_normal = "white"
+        self.tab_hover = "gray"
+        self.tab_selected = "yellow"
+        self.tab_text = "black"
+        self.end_pos = [5, 5]
+
+        self.padding_top = 5        
+        self.padding_bottom = 5        
+        self.padding_right = 5        
+        self.padding_left = 5
+
+        self.__total_width = 0
+        self.__total_height = 0
+        self.__state = 0
+        self.__tab_selected = None
+
+    def add_tab(self, tab_name, tab_screen):
+        tab = Surface(0, 0, None, None)
+        tab.background_color = self.tab_normal
+        tab.padding_bottom = self.padding_bottom
+        tab.padding_right = self.padding_right
+        tab.padding_left = self.padding_left
+        tab.padding_top = self.padding_top
+        tab.text_color = self.tab_text
+        tab.add_text(tab_name, self.tab_font)
+        tab.update()
+        
+        self.tabs.append([tab, tab_screen])
+
+        self.__total_width += self.padding_left + tab.image.get_width() + self.padding_right
+        self.__total_height = max(tab.image.get_height(), self.__total_height)
+
+    def get_state(self):
+        """
+        0 - not changed
+        1 - chaning
+        2 - done
+        """
+        return self.__state
+    
+    def get_screen(self):
+        for tab_info in self.tabs:
+            if tab_info == self.__tab_selected:
+                return tab_info[1]
+            
+    def get_width(self):
+        if self.__state == 0:
+            return self.__total_width
+        else:
+            return max(self.padding_left+self.tabs[0][0].image.get_width()+self.padding_right, 
+                    self.padding_left+self.tabs[1][0].image.get_width()+self.padding_right, 
+                    self.padding_left+self.tabs[2][0].image.get_width()+self.padding_right)
+
+    def draw(self, surface: pygame.Surface):
+        init_x = surface.get_width()//2 - self.__total_width//2
+        init_y = surface.get_height()//2 - self.__total_height//2
+        previous_width = 0
+
+        # checking
+        if self.tabs[0][0].x == self.end_pos[0] and self.tabs[1][0].x == self.end_pos[0] and self.tabs[2][0].x == self.end_pos[0]:
+            self.__state = 1
+
+        for count, tab_info in enumerate(self.tabs):
+            sprite: Surface = tab_info[0]
+
+            if self.__state == 0:
+                sprite.x = init_x+previous_width
+                sprite.y = init_y
+                previous_width += self.padding_left + sprite.image.get_width() + self.padding_right
+
+            elif self.__state == 1:
+                match count:
+                    case 0:
+                        sprite.x += (5-sprite.x)*0.1
+                        sprite.y += (5-sprite.y)*0.1
+                    case 1:
+                        sprite.x += (5-sprite.x)*0.1
+                        sprite.y += ((5+self.tabs[0][0].image.get_height()+5)-sprite.y)*0.08
+                    case 2:
+                        sprite.x += (5-sprite.x)*0.1
+                        sprite.y += ((5+self.tabs[0][0].image.get_height()+5+self.tabs[1][0].image.get_height()+5)-sprite.y)*0.06
+
+            sprite.update()
+
+            # collisions
+            if sprite.rect.collidepoint(*pygame.mouse.get_pos()) and self.__tab_selected != tab_info:
+                sprite.background_color = self.tab_hover
+
+                if pygame.mouse.get_pressed()[0]:
+                    sprite.background_color = self.tab_selected
+                    self.__tab_selected = tab_info
+                    self.__state = 1
+            
+            elif self.__tab_selected == tab_info:
+                sprite.background_color = self.tab_selected
+
+            else:
+                sprite.background_color = self.tab_normal
+
+            surface.blit(sprite.image, (sprite.x, sprite.y))
+
+
+
+
+            

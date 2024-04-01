@@ -1,0 +1,27 @@
+{
+    "theme": {
+        "paddingTop": 5,
+        "paddingRight": 5,
+        "paddingBottom": 5,
+        "paddingLeft": 5,
+        "borderRadius": 5,
+
+        "background": "#292929",
+        "foreground": "#19b3f1",
+        "textColor": "black",
+        "hoverForeground": "#12ca3c",
+        "hoverText": "#f1f0f0",
+
+        "debugNormal": "white",
+        "debugError": "red",
+        "debugBackground": "midnightblue",
+        "debugSuccess": "green"
+    },
+
+    "application": {
+        "width": 1280,
+        "height": 720,
+        "fps": 60,
+        "debugMode": true
+    }
+}
