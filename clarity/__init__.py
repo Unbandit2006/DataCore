@@ -2,6 +2,8 @@ import pygame
 import json
 import os
 
+from pygame.event import EventType
+
 pygame.init()
 pygame.font.init()
 
@@ -61,6 +63,9 @@ class Widget:
         self.height = height
 
         self.settings = settings
+
+    def handle_event(self, event: pygame.event.EventType):
+        pass
 
     def draw(self, surface: pygame.Surface):
         pass
@@ -154,6 +159,12 @@ class TabMenu(Widget):
                 tab[1].height = surface.get_height() - self.settings.paddingBottom - self.height - self.settings.paddingTop - self.settings.paddingBottom
                 
                 tab[1].draw(surface)
+
+    def handle_event(self, event: pygame.event.Event):
+        if self._state == 2:
+            for tab in self._tabs:
+                if self._tab == tab:
+                    tab[1].handle_event(event)
 
 
 class Label(Widget):
@@ -296,4 +307,7 @@ class Window:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+
+                for widget in self._widgets:
+                    widget.handle_event(event)
 

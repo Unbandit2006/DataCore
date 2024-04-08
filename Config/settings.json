@@ -12,7 +12,7 @@
         "hoverForeground": "#12ca3c",
         "hoverText": "#f1f0f0",
         "selectedForeground": "#12ca3c",
-        "selectedText": "#f1f0f0",
+        "selectedText": "yellow",
 
         "debugNormal": "white",
         "debugError": "red",

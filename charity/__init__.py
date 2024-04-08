@@ -1,3 +1,4 @@
+from pygame.event import EventType
 import pygame.image
 import clarity
 import pygame
@@ -15,8 +16,25 @@ class EmployeeData:
 
         self.editing = False
 
+    def __eq__(self, other) -> bool:
+        if not isinstance(other, EmployeeData):
+            return NotImplemented
+        
+        return self.name == other.name and self.pay == other.pay and self.title == other.title and self.role == other.role and self.image_data == other.image_data and self.image_path == other.image_path
+
     def __repr__(self) -> str:
-        return f"<Employee {self.name}>"
+        return f"<Employee '{self.name}' ${str(self.pay)} {self.title} {self.role} {self.image_path}>"
+    
+    def __json__(self):
+        return {
+            "firstName": self.name.split(" ")[0],
+            "lastName": self.name.split(" ")[1],
+            "pay": self.pay,
+            "title": self.title,
+            "role": self.role,
+            "image": self.image_path,
+            "cropData": self.image_data
+        }
 
 
 class EmployeeGraphic(clarity.Widget):
@@ -86,10 +104,10 @@ class EmployeeGraphic(clarity.Widget):
             self.resize_image()
         employee_surface.blit(self.image, (self.settings.paddingLeft, self.settings.paddingTop))
 
-        name_render = self.font.render("Name: "+self.data.name, True, self.settings.selectedText)
-        pay_render = self.font.render("Pay: $"+str(self.data.pay), True, self.settings.selectedText)
-        title_render = self.font.render("Title: "+self.data.title, True, self.settings.selectedText)
-        role_render = self.font.render("Role: "+self.data.role, True, self.settings.selectedText)
+        name_render = self.font.render("Name: "+self.data.name, True, self.settings.hoverText)
+        pay_render = self.font.render("Pay: $"+str(self.data.pay), True, self.settings.hoverText)
+        title_render = self.font.render("Title: "+self.data.title, True, self.settings.hoverText)
+        role_render = self.font.render("Role: "+self.data.role, True, self.settings.hoverText)
 
         y = self.settings.paddingTop
         employee_surface.blit(name_render, (self.settings.paddingLeft+100+self.settings.paddingRight, self.settings.paddingTop))
@@ -135,8 +153,11 @@ class EmployeeManagement(clarity.Widget):
 
         self.employees = []
         self.employee_generated_time = None
+        self.employee_index = None
         self.image = None
+        self.currently_selected = None
         self.font = pygame.font.SysFont("Consolas", 15)
+        self.event = None
 
     def generate_employees(self):
         with open("Config\\employees.json") as file:
@@ -144,6 +165,16 @@ class EmployeeManagement(clarity.Widget):
 
             for employee in employees:
                 self.employees.append(EmployeeData(employee))
+    
+    def get_from_file_employees(self):
+        values = []
+        with open("Config\\employees.json") as file:
+            employees = json.load(file)["employees"]
+
+            for employee in employees:
+                values.append(EmployeeData(employee))
+
+        return values
 
     def resize_image(self, employee_index: int):
         self.image = pygame.image.load(self.employees[employee_index].image_path)
@@ -181,7 +212,7 @@ class EmployeeManagement(clarity.Widget):
         text_height += role_render_height
 
         width += max(width, text_width)
-        height = max(height, text_height)
+        height = max(height, text_height) + self.font.get_height() + self.settings.paddingTop + self.settings.paddingBottom
 
         if self.image is None:
             self.resize_image(employee_index)
@@ -192,11 +223,12 @@ class EmployeeManagement(clarity.Widget):
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
+            self.currently_selected = None
             self.employees[employee_index].editing = False
 
         y = self.settings.paddingTop
 
-        name_label_render = self.font.render("Name: ", True, self.settings.selectedText)
+        name_label_render = self.font.render("Name: ", True, self.settings.hoverText)
         surf.blit(name_label_render, (self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100, y))
         name_render = self.font.render("Name: "+self.employees[employee_index].name, True, self.settings.textColor)
         act_name = self.font.render(self.employees[employee_index].name, True, self.settings.textColor)
@@ -206,9 +238,27 @@ class EmployeeManagement(clarity.Widget):
         if name_rect.x+pos[0] <= pygame.mouse.get_pos()[0] <= name_rect.x+name_rect.width+pos[0] and name_rect.y+pos[1]+35 <= pygame.mouse.get_pos()[1] <= name_rect.y+name_rect.height+pos[1]+35:
             name_bg = self.settings.hoverForeground
             name_text_color = self.settings.hoverText
+
+            if pygame.mouse.get_pressed()[0]:
+                self.currently_selected = "name"
+
         else:
             name_bg = self.settings.foreground
             name_text_color = self.settings.textColor
+
+        if self.currently_selected == "name":
+            name_bg = self.settings.selectedForeground
+            name_text_color = self.settings.selectedText
+
+            if keys[pygame.K_BACKSPACE]:
+                self.employees[employee_index].name = self.employees[employee_index].name[:-1]
+            elif keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
+                self.employees[employee_index].editing = False
+                self.currently_selected = None
+            elif keys[pygame.K_SPACE]:
+                self.employees[employee_index].name += " "
+            elif keys[pygame.K_TAB]:
+                self.currently_selected = None
         
         act_name = self.font.render(self.employees[employee_index].name, True, name_text_color)
         pygame.draw.rect(surf, name_bg, name_rect)
@@ -216,7 +266,7 @@ class EmployeeManagement(clarity.Widget):
 
         y += int(name_rect.height) + self.settings.paddingBottom + self.settings.paddingTop
 
-        pay_label_render = self.font.render("Pay: $", True, self.settings.selectedText)
+        pay_label_render = self.font.render("Pay: $", True, self.settings.hoverText)
         surf.blit(pay_label_render, (self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100, y))
         pay_render = self.font.render("Pay: $"+str(self.employees[employee_index].pay), True, self.settings.textColor)
         act_pay = self.font.render(str(self.employees[employee_index].pay), True, self.settings.textColor)
@@ -226,9 +276,25 @@ class EmployeeManagement(clarity.Widget):
         if pay_rect.x+pos[0] <= pygame.mouse.get_pos()[0] <= pay_rect.x+pay_rect.width+pos[0] and pay_rect.y+pos[1]+35 <= pygame.mouse.get_pos()[1] <= pay_rect.y+pay_rect.height+pos[1]+35:
             pay_bg = self.settings.hoverForeground
             pay_text_color = self.settings.hoverText
+
+            if pygame.mouse.get_pressed()[0]:
+                self.currently_selected = "pay"
+
         else:
             pay_bg = self.settings.foreground
             pay_text_color = self.settings.textColor
+
+        if self.currently_selected == "pay":
+            pay_bg = self.settings.selectedForeground
+            pay_text_color = self.settings.selectedText
+
+            if keys[pygame.K_BACKSPACE]:
+                self.employees[employee_index].pay = int(str(self.employees[employee_index].pay)[:-1])
+            elif keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
+                self.employees[employee_index].editing = False
+                self.currently_selected = None
+            elif keys[pygame.K_TAB]:
+                self.currently_selected = None
 
         act_pay = self.font.render(str(self.employees[employee_index].pay), True, pay_text_color)
         pygame.draw.rect(surf, pay_bg, pay_rect)
@@ -236,7 +302,7 @@ class EmployeeManagement(clarity.Widget):
 
         y += int(pay_rect.height) + self.settings.paddingBottom + self.settings.paddingTop
 
-        title_label_render = self.font.render("Title: ", True, self.settings.selectedText)
+        title_label_render = self.font.render("Title: ", True, self.settings.hoverText)
         surf.blit(title_label_render, (self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100, y))
         title_render = self.font.render("Title: "+str(self.employees[employee_index].title), True, self.settings.textColor)
         act_title = self.font.render(str(self.employees[employee_index].title), True, self.settings.textColor)
@@ -246,9 +312,27 @@ class EmployeeManagement(clarity.Widget):
         if title_rect.x+pos[0] <= pygame.mouse.get_pos()[0] <= title_rect.x+title_rect.width+pos[0] and title_rect.y+pos[1]+35 <= pygame.mouse.get_pos()[1] <= title_rect.y+title_rect.height+pos[1]+35:
             title_bg = self.settings.hoverForeground
             title_text_color = self.settings.hoverText
+
+            if pygame.mouse.get_pressed()[0]:
+                self.currently_selected = "title"
+
         else:
             title_bg = self.settings.foreground
             title_text_color = self.settings.textColor
+
+        if self.currently_selected == "title":
+            title_bg = self.settings.selectedForeground
+            title_text_color = self.settings.selectedText
+
+            if keys[pygame.K_BACKSPACE]:
+                self.employees[employee_index].title = self.employees[employee_index].title[:-1]
+            elif keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
+                self.employees[employee_index].editing = False
+                self.currently_selected = None
+            elif keys[pygame.K_SPACE]:
+                self.employees[employee_index].title += " "            
+            elif keys[pygame.K_TAB]:
+                self.currently_selected = None
 
         act_title = self.font.render(str(self.employees[employee_index].title), True, title_text_color)
         pygame.draw.rect(surf, title_bg, title_rect)
@@ -256,7 +340,7 @@ class EmployeeManagement(clarity.Widget):
 
         y += int(title_rect.height) + self.settings.paddingBottom + self.settings.paddingTop
 
-        role_label_render = self.font.render("Role: ", True, self.settings.selectedText)
+        role_label_render = self.font.render("Role: ", True, self.settings.hoverText)
         surf.blit(role_label_render, (self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100, y))
         role_render = self.font.render("Role: "+str(self.employees[employee_index].role), True, self.settings.textColor)
         act_role = self.font.render(str(self.employees[employee_index].role), True, self.settings.textColor)
@@ -266,9 +350,27 @@ class EmployeeManagement(clarity.Widget):
         if role_rect.x+pos[0] <= pygame.mouse.get_pos()[0] <= role_rect.x+role_rect.width+pos[0] and role_rect.y+pos[1]+35 <= pygame.mouse.get_pos()[1] <= role_rect.y+role_rect.height+pos[1]+35:
             role_bg = self.settings.hoverForeground
             role_text_color = self.settings.hoverText
+
+            if pygame.mouse.get_pressed()[0]:
+                self.currently_selected = "role"
+
         else:
             role_bg = self.settings.foreground
             role_text_color = self.settings.textColor        
+
+        if self.currently_selected == "role":
+            role_bg = self.settings.selectedForeground
+            role_text_color = self.settings.selectedText
+
+            if keys[pygame.K_BACKSPACE]:
+                self.employees[employee_index].role = self.employees[employee_index].role[:-1]
+            elif keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
+                self.employees[employee_index].editing = False
+                self.currently_selected = None
+            elif keys[pygame.K_SPACE]:
+                self.employees[employee_index].role += " "
+            elif keys[pygame.K_TAB]:
+                self.currently_selected = None
 
         act_role = self.font.render(str(self.employees[employee_index].role), True, role_text_color)
         pygame.draw.rect(surf, role_bg, role_rect)
@@ -277,12 +379,114 @@ class EmployeeManagement(clarity.Widget):
         y_area = surf.get_height() - self.settings.paddingBottom - self.settings.paddingTop - 100
         x_area = surf.get_width() - self.settings.paddingRight - self.settings.paddingLeft
 
-        esc_render = self.font.render("Press *Esc* to save and exit", True, self.settings.selectedText)
-        surf.blit(esc_render, (self.settings.paddingLeft+(x_area//2 - esc_render.get_width()//2), self.settings.paddingTop+self.settings.paddingBottom+100+(y_area//2 - esc_render.get_height()//2)))
+        esc_render = self.font.render("Press *Esc* to exit", True, self.settings.hoverText)
+        surf.blit(esc_render, (self.settings.paddingLeft+(x_area//2 - esc_render.get_width()//2), self.settings.paddingTop+self.settings.paddingBottom+100))
+
+        tab_render = self.font.render("Press *Tab* to deselect", True, self.settings.hoverText)
+        surf.blit(tab_render, (self.settings.paddingLeft+(x_area//2 - esc_render.get_width()//2), self.settings.paddingTop+self.settings.paddingTop+self.settings.paddingBottom+100+esc_render.get_height()+self.settings.paddingTop))
 
         surf.blit(self.image, (self.settings.paddingLeft, self.settings.paddingTop))
 
+        # if pos[0] + self.settings.paddingLeft <= pygame.mouse.get_pos()[0] <= pos[0] + 100+self.settings.paddingLeft:
+        #     if pos[1] + self.settings.paddingTop+35 <= pygame.mouse.get_pos()[1] <= pos[1]+35+100+self.settings.paddingTop:
+        #         image_overlay = pygame.Surface((100, 100), pygame.SRCALPHA)
+        #         image_overlay.fill((0, 0, 0, 100))
+        #         surf.blit(image_overlay, (self.settings.paddingLeft, self.settings.paddingTop))
+
+        #         if pygame.mouse.get_pressed()[0]:
+        #             self.currently_selected = "image"
+
+        # if self.currently_selected == "image":
+        #     image_overlay = pygame.Surface((100, 100), pygame.SRCALPHA)
+        #     image_overlay.fill((0, 0, 0, 100))
+        #     surf.blit(image_overlay, (self.settings.paddingLeft, self.settings.paddingTop))  
+
+        #     if keys[pygame.K_TAB]:
+        #         self.currently_selected = None
+
         surface.blit(surf, pos)
+
+   
+    def handle_event(self, event: pygame.event.Event):
+        if event.type == pygame.KEYUP:
+            if self.currently_selected == "name":
+                if event.type != pygame.K_BACKSPACE or event.key != pygame.K_RETURN:
+                    if event.type == pygame.KEYUP:
+                        if pygame.key.name(event.key) in ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]:
+                            self.employees[self.employee_index].name += event.unicode
+            if self.currently_selected == "pay":
+                if event.type != pygame.K_BACKSPACE or event.key != pygame.K_RETURN:
+                    if event.type == pygame.KEYUP:
+                        if pygame.key.name(event.key) in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
+                            self.employees[self.employee_index].pay = int(str(self.employees[self.employee_index].pay) + event.unicode)
+            if self.currently_selected == "title":
+                if event.type != pygame.K_BACKSPACE or event.key != pygame.K_RETURN:
+                    if event.type == pygame.KEYUP:
+                        if pygame.key.name(event.key) in ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]:
+                            self.employees[self.employee_index].title += event.unicode
+            if self.currently_selected == "role":
+                if event.type != pygame.K_BACKSPACE or event.key != pygame.K_RETURN:
+                    if event.type == pygame.KEYUP:
+                        if pygame.key.name(event.key) in ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"]:
+                            self.employees[self.employee_index].title += event.unicode
+
+    def show_save_error_message(self, surface: pygame.SurfaceType):
+        first_line_render = self.font.render("Unsaved changes", True, self.settings.hoverText)
+        second_line_render = self.font.render("Press *Ctrl S* to save", True, self.settings.hoverText)
+
+        height = first_line_render.get_height() + second_line_render.get_height() + self.settings.paddingBottom + self.settings.paddingTop + self.settings.paddingBottom
+        width = max(first_line_render.get_width(), second_line_render.get_width()) + self.settings.paddingLeft + self.settings.paddingRight
+
+        surf = pygame.Surface((width, height))
+        surf.fill("red")
+
+        surf.blit(first_line_render, (self.settings.paddingLeft, self.settings.paddingTop))
+        surf.blit(second_line_render, (self.settings.paddingLeft, self.settings.paddingTop+first_line_render.get_height()+self.settings.paddingTop))
+
+        surface.blit(surf, (surface.get_width()-width-5, surface.get_height()-height-5))
+
+    def save_to_file(self):
+        with open("Config\\employees.json", "w") as file:
+            json.dump({"employees": [employee.__json__() for employee in self.employees]}, file)
+
+        self.employees = []
+        self.employee_index = None
+
+    def change_crop_data(self, surface: pygame.SurfaceType, index: int):
+        surf = pygame.surface.Surface((surface.get_width()//2, surface.get_height()//4))
+
+        image_file_path_label = self.font.render("Image Path: ", True, self.settings.hoverText)
+        
+        image_path = self.font.render(self.employees[index].image_path, True, self.settings.textColor)
+        image_rect = image_path.get_rect(topleft=(self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100+image_file_path_label.get_width(), self.settings.paddingTop))
+        image_rect.width = surf.get_width() - (self.settings.paddingLeft+self.settings.paddingRight+self.settings.paddingLeft+100+self.settings.paddingRight) - image_file_path_label.get_width()
+        
+        surface.blit(surf, (surface.get_width()//2 - surf.get_width()//2, surface.get_height()//2 - surf.get_height()//2))
+        # if name_rect.x+pos[0] <= pygame.mouse.get_pos()[0] <= name_rect.x+name_rect.width+pos[0] and name_rect.y+pos[1]+35 <= pygame.mouse.get_pos()[1] <= name_rect.y+name_rect.height+pos[1]+35:
+        #     name_bg = self.settings.hoverForeground
+        #     name_text_color = self.settings.hoverText
+
+        #     if pygame.mouse.get_pressed()[0]:
+        #         self.currently_selected = "name"
+
+        # else:
+        #     name_bg = self.settings.foreground
+        #     name_text_color = self.settings.textColor
+
+        # if self.currently_selected == "name":
+        #     name_bg = self.settings.selectedForeground
+        #     name_text_color = self.settings.selectedText
+
+        #     if keys[pygame.K_BACKSPACE]:
+        #         self.employees[employee_index].name = self.employees[employee_index].name[:-1]
+        #     elif keys[pygame.K_RETURN] or keys[pygame.K_KP_ENTER]:
+        #         self.employees[employee_index].editing = False
+        #         self.currently_selected = None
+        #     elif keys[pygame.K_SPACE]:
+        #         self.employees[employee_index].name += " "
+        #     elif keys[pygame.K_TAB]:
+        #         self.currently_selected = None        
+
 
     def draw(self, surface: pygame.Surface):
         employee_viewport = pygame.Surface((self.width, self.height))
@@ -306,8 +510,17 @@ class EmployeeManagement(clarity.Widget):
 
             if employee.editing:
                 self.draw_edit_window(employee_viewport, self.employees.index(employee))
+                self.employee_index = self.employees.index(employee)
+
             else:
                 self.image = None
+
+        if self.employees != self.get_from_file_employees():
+            self.show_save_error_message(employee_viewport)
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LCTRL] and keys[pygame.K_s]:
+            self.save_to_file()
 
         surface.blit(employee_viewport, (self.x, self.y))
 
