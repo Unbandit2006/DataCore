@@ -1,0 +1,8 @@
+# this doesn't matter just for design
+
+___________________________________
+| image  Name: <employee_name>    |
+| image  Title: <employee_title>  |
+| image  Pay: <employee_pay>      |
+| image  Role: <employee_role>    |
+|---------------------------------|

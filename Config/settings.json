@@ -11,6 +11,8 @@
         "textColor": "black",
         "hoverForeground": "#12ca3c",
         "hoverText": "#f1f0f0",
+        "selectedForeground": "#12ca3c",
+        "selectedText": "#f1f0f0",
 
         "debugNormal": "white",
         "debugError": "red",
@@ -22,6 +24,7 @@
         "width": 1280,
         "height": 720,
         "fps": 60,
-        "debugMode": true
+        "debugMode": false,
+        "currentRole": "chief"
     }
 }
