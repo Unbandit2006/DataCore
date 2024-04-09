@@ -1,9 +1,9 @@
-from pygame.event import EventType
 import pygame.image
 import clarity
 import pygame
 import json
 import os
+from .InventoryManagement import InventoryManagement
 
 class EmployeeData:
     def __init__(self, information):
