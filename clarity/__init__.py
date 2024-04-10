@@ -158,7 +158,9 @@ class TabMenu(Widget):
                 tab[1].width = surface.get_width() - self.settings.paddingRight - self.settings.paddingLeft
                 tab[1].height = surface.get_height() - self.settings.paddingBottom - self.height - self.settings.paddingTop - self.settings.paddingBottom
                 
+                # surf = pygame.Surface((tab[1].width, tab[1].height))
                 tab[1].draw(surface)
+                # surface.blit(surf, (self.settings.paddingLeft, self.x+previous))
 
     def handle_event(self, event: pygame.event.Event):
         if self._state == 2:

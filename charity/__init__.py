@@ -4,6 +4,7 @@ import pygame
 import json
 import os
 from .InventoryManagement import InventoryManagement
+from .SalesManagement import SalesManagement
 
 class EmployeeData:
     def __init__(self, information):
