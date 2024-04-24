@@ -1,3 +1,4 @@
 *.csv
 *.x*
+*_School.*
 data.json

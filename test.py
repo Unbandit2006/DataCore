@@ -4,7 +4,7 @@ pygame.init()
 window = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
 
-image_path = "Images\\danZ.jpg"
+image_path = "Images\\pens.jpg"
 image = pygame.image.load(image_path)
 image_rect = pygame.Rect(0, 0, 200, 200)
 

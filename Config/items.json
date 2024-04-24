@@ -1,1 +1,20 @@
-{"items": [{"itemName": "Pencils", "cost": 1000, "upc": 0, "buyLink": "www.google.com", "image": "Images\\temporaryImg.jpg", "cropData": [435, 180, 200, 200]}, {"itemName": "Item 2", "cost": 2000, "upc": 0, "buyLink": "www.google.com", "image": "Images\\temporaryImg.jpg", "cropData": [435, 180, 200, 200]}, {"itemName": "Item 3", "cost": 3000, "upc": 0, "buyLink": "www.google.com", "image": "Images\\temporaryImg.jpg", "cropData": [435, 180, 200, 200]}]}
+{
+    "items": [
+        {
+            "itemName": "Pencils 18 count",
+            "cost": 4.59,
+            "upc": 13818,
+            "buyLink": "https://tinyurl.com/mucx3dye",
+            "image": "Images\\pencils.jpg",
+            "cropData": [386.0, 259.0, 200, 200]
+        },
+        {
+            "itemName": "Pens 24 count",
+            "cost": 8.89,
+            "upc": 12221,
+            "buyLink": "https://tinyurl.com/4s7ub2ed",
+            "image": "Images\\pens.jpg",
+            "cropData": [541.0, 26.0, 200, 200]
+        }
+    ]
+}
